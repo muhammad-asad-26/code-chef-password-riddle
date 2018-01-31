@@ -34,27 +34,33 @@ public class Segments {
     private static boolean EvaluateSegments(String[] segments, String password_passed, int passwordLength_passed) {
         for (int index = segments.length -1; index >= 0; index--) {
             String[] literals = segments[index].trim().split(" ");
-            //Evaluate the length of the chunk to compare
-            int length = evaluateLengthFromLiterals(password_passed, passwordLength_passed, literals);
+            if(literals.length >= 1 && literals.length <= 600000) {
+                //Evaluate the length of the chunk to compare
+                int length = evaluateLengthFromLiterals(password_passed, passwordLength_passed, literals);
 
-            //Get the chunk for the password for comparison on the basis of literals
-            String enteredPasswordChunkToCompare = password_passed.substring(password_passed.length() - length);
+                //Get the chunk for the password for comparison on the basis of literals
+                String enteredPasswordChunkToCompare = password_passed.substring(password_passed.length() - length);
 
-            //Removing the used chunk from the original password
-            password_passed = password_passed.substring(0, password_passed.length() - length);
-            passwordLength_passed -= length;
+                //Removing the used chunk from the original password
+                password_passed = password_passed.substring(0, password_passed.length() - length);
+                passwordLength_passed -= length;
 
-            //Check if the last literal is odd or even. Then get the number from the entered password
-            // and convert it to number word.
-            if(literals[literals.length - 1].equals("odd") || literals[literals.length - 1].equals("even")) {
-                literals[literals.length - 1] = Segments.ConvertToSpelling(Character.getNumericValue(enteredPasswordChunkToCompare.charAt(0)));
+                //Check if the last literal is odd or even. Then get the number from the entered password
+                // and convert it to number word.
+                if (literals[literals.length - 1].equals("odd") || literals[literals.length - 1].equals("even")) {
+                    literals[literals.length - 1] = Segments.ConvertToSpelling(Character.getNumericValue(enteredPasswordChunkToCompare.charAt(0)));
+                }
+
+                // Generate a temporary password to compare with the original password chunk
+                String generateTempPassword = generatePassword(Segments.ConvertToDigit(literals[literals.length - 1]), length);
+
+                if (!enteredPasswordChunkToCompare.equals(generateTempPassword)) {
+                    return true;
+                }
             }
-
-            // Generate a temporary password to compare with the original password chunk
-            String generateTempPassword = generatePassword(Segments.ConvertToDigit(literals[literals.length - 1]), length);
-
-            if(!enteredPasswordChunkToCompare.equals(generateTempPassword)) {
-                return true;
+            else
+            {
+                return false;
             }
         }
         return false;
